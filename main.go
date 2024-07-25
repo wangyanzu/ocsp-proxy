@@ -1,28 +1,46 @@
 package main
 
 import (
-        "flag"
-        "log"
-        "net/http"
-        "net/http/httputil"
+	"context"
+	"log"
+	"net/http"
+
+	"github.com/wangyanzu/ocsp-proxy/internal/cache"
+	"github.com/wangyanzu/ocsp-proxy/internal/config"
+	"github.com/wangyanzu/ocsp-proxy/internal/ocsp"
 )
 
 func main() {
-        var addr string
-        var ocspHost string
-        flag.StringVar(&ocspHost, "ocsphost", "", "OCSP server to proxy requests to")
-        flag.StringVar(&addr, "http", ":8080", "HTTP host:port to listen to")
-        flag.Parse()
-        if ocspHost == "" {
-                log.Fatal("need ocsphost parameter")
-        }
-        rp := &httputil.ReverseProxy{
-                Director: func(req *http.Request) {
-                        req.URL.Scheme = "http"
-                        req.URL.Host = ocspHost
-                        req.Host = req.URL.Host
-                },
-                Transport: http.DefaultTransport,
-        }
-        http.ListenAndServe(addr, rp)
+	http.HandleFunc("/", func(responseWriter http.ResponseWriter, request *http.Request) {
+		cacheKey := request.RequestURI
+		log.Println(request.RemoteAddr, "Requesting", cacheKey)
+		var err error
+		rc, ok, expired := cache.Get(cacheKey)
+		// if no ocsp exist
+		if ok {
+			log.Println("hit cache: ", cacheKey)
+		} else {
+			rc, err = ocsp.RequestResponserAndCache(request)
+			if err != nil {
+				log.Println(err)
+				responseWriter.WriteHeader(500)
+				return
+			}
+			expired = false
+		}
+		for name, values := range rc.Header {
+			responseWriter.Header()[name] = values
+		}
+		_, err = responseWriter.Write(rc.Body)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		if expired {
+			// set context nil
+			log.Println("cache is expired", cacheKey)
+			go ocsp.RequestResponserAndCache(request.WithContext(context.TODO()))
+		}
+	})
+	http.ListenAndServe(config.Addr, nil)
 }

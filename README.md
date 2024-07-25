@@ -1,4 +1,4 @@
-Proxy for OCSP stapling
+Proxy for OCSP stapling Plus ( with response cache )
 =======================
 
 OCSP stapling means that the SSL server (rather than client) has to make requests to CA servers
@@ -14,7 +14,7 @@ then this tool may help you.
 Usage
 -----
 
-   HTTP_PROXY=http://proxy:8888 ./ocsp-proxy -ocsphost ocspserver.com -http :8080
+   HTTP_PROXY=http://proxy:8888 ./ocsp-proxy -ocsphost ocspserver.com -http :8080 -interval 1800
 
 Il will listen on port 8080 for HTTP request and will forward the request to the ocsphost,
 using the generic http proxy supplied the Go stdlib way.
@@ -27,6 +27,6 @@ In your nginx OCSP stapling configuration, add the line:
 
 To find out your ocsphost, as far as I know:
 
-   openssl x509 -in certificate.crt -noout -text | grep OCSP
+   openssl x509 -noout -ocsp_uri -in example.com.crt
 
 (use the domain without scheme)
