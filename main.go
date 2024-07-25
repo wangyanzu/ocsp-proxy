@@ -11,6 +11,14 @@ import (
 )
 
 func main() {
+	log.Printf(`
+
+	OCSP Running
+	Listen: %s
+	OCSP Responser: %s
+	Cache Refresh Time: %ds
+
+	`, config.Addr, config.OcspHost, config.Interval)
 	http.HandleFunc("/", func(responseWriter http.ResponseWriter, request *http.Request) {
 		cacheKey := request.RequestURI
 		log.Println(request.RemoteAddr, "Requesting", cacheKey)

@@ -11,7 +11,7 @@ var OcspHost string
 var Interval uint
 
 func init() {
-	flag.StringVar(&OcspHost, "ocsphost", "", "OCSP server to proxy requests to")
+	flag.StringVar(&OcspHost, "ocsphost", "e5.o.lencr.org", "OCSP server to proxy requests to")
 	flag.StringVar(&Addr, "http", ":8080", "HTTP host:port to listen to")
 	flag.UintVar(&Interval, "interval", 1800, "cache refresh time in second")
 	flag.Parse()

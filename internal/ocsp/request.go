@@ -37,7 +37,8 @@ func RequestResponserAndCache(request *http.Request) (rc *cache.RespCache, err e
 		Header: resp.Header,
 		Body:   body.Bytes(),
 	}
-	log.Println("set cache: ", cacheKey)
+	// log.Println("set cache: ", cacheKey)
+	log.Printf("[%d] set cache %s \nBody: %s \n", resp.StatusCode, cacheKey, body.Bytes())
 	cache.Set(cacheKey, rc)
 
 	resp.Body = io.NopCloser(&body)
