@@ -15,7 +15,7 @@ func main() {
 
 	OCSP Running
 	Listen: %s
-	OCSP Responser: %s
+	OCSP Responder: %s
 	Cache Refresh Time: %ds
 
 	`, config.Addr, config.OcspHost, config.Interval)
@@ -28,7 +28,7 @@ func main() {
 		if ok {
 			log.Println("hit cache: ", cacheKey)
 		} else {
-			rc, err = ocsp.RequestResponserAndCache(request)
+			rc, err = ocsp.RequestResponderAndCache(request)
 			if err != nil {
 				log.Println(err)
 				responseWriter.WriteHeader(500)
@@ -47,7 +47,7 @@ func main() {
 		if expired {
 			// set context nil
 			log.Println("cache is expired", cacheKey)
-			go ocsp.RequestResponserAndCache(request.WithContext(context.TODO()))
+			go ocsp.RequestResponderAndCache(request.WithContext(context.TODO()))
 		}
 	})
 	http.ListenAndServe(config.Addr, nil)

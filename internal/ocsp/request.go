@@ -11,7 +11,7 @@ import (
 	"github.com/wangyanzu/ocsp-proxy/internal/config"
 )
 
-func RequestResponserAndCache(request *http.Request) (rc *cache.RespCache, err error) {
+func RequestResponderAndCache(request *http.Request) (rc *cache.RespCache, err error) {
 	cacheKey := request.RequestURI
 	request.URL.Scheme = "http"
 	request.URL.Host = config.OcspHost
